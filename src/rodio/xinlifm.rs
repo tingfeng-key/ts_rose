@@ -4,7 +4,6 @@ extern crate rand;
 extern crate reqwest;
 extern crate rustc_serialize;
 use json::JsonValue;
-use rustc_serialize::hex::ToHex;
 
 use std::fs;
 use std::fs::File;
