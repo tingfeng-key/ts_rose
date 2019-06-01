@@ -1,11 +1,14 @@
 pub mod netease;
 pub mod xinlifm;
 
-extern crate rodio;
 use reqwest::Url;
+use rodio::queue::SourcesQueueOutput;
+use rodio::source::Source;
+use rodio::Sink;
 use rustc_serialize::json;
-use rustc_serialize::json::{Json, ToJson};
+use rustc_serialize::json::Json;
 use std::sync::mpsc::Sender;
+use std::time::Duration;
 
 #[allow(dead_code)]
 #[derive(RustcDecodable, RustcEncodable, Debug, Clone)]
@@ -14,21 +17,47 @@ pub struct Music {
     url: String,
     path: Option<String>,
 }
+#[allow(dead_code)]
+struct Player {
+    sink: Sink,
+    queue_rx: SourcesQueueOutput<f32>,
+}
+impl Player {
+    #[allow(dead_code)]
+    fn new() -> Player {
+        let _device = rodio::default_output_device().unwrap();
+        let (s, q) = Sink::new_idle();
+
+        let player = Player {
+            sink: s,
+            queue_rx: q,
+        };
+        player
+    }
+    #[allow(dead_code)]
+    fn get_total_duration(&self) {
+        //let d = self.queue_rx.total_duration().unwrap();
+        println!("{:#?}", self.queue_rx.current_frame_len());
+        //d
+    }
+}
+#[allow(dead_code)]
 pub fn player_start() -> Sender<String> {
-    use rodio::Sink;
+    extern crate rodio as rodio_lib;
     use std::io::BufReader;
     use std::sync::mpsc::channel;
     use std::sync::{Arc, Mutex};
     use std::thread;
-    use std::time::Duration;
 
     let (sender, receiver) = channel::<String>();
 
-    let _device = rodio::default_output_device().unwrap();
+    let _device = rodio_lib::default_output_device().unwrap();
     let sink = Arc::new(Mutex::new(Sink::new(&_device)));
     let sink_clone = sink.clone();
 
     let mut musics: Vec<Music> = Vec::new();
+
+    //let player = Player::new();
     thread::spawn(move || {
         let d = Duration::from_millis(10);
 
@@ -38,11 +67,11 @@ pub fn player_start() -> Sender<String> {
             let musics_len = musics.len();
             if musics_len > 0 {
                 let idx = musics_len - sink_clone.lock().unwrap().len();
-                let mut current_song = musics.get(idx).unwrap();
+                let current_song = musics.get(idx).unwrap();
                 let current_song_name = current_song.clone().name;
                 if !current_song_name.eq(&last_song_name) {
                     last_song_name = current_song_name;
-                    println!("正在播放歌曲：{}", last_song_name);
+                    println!("正在播放歌曲：{}, 时长：1", last_song_name);
                 }
             }
 
@@ -53,11 +82,8 @@ pub fn player_start() -> Sender<String> {
                     musics.push(music.clone());
                     let path = music.path.unwrap();
                     let file = std::fs::File::open(path).unwrap();
-                    sink_clone
-                        .lock()
-                        .unwrap()
-                        .append(rodio::Decoder::new(BufReader::new(file)).unwrap());
-                    //println!("is_sleep");
+                    let source = rodio_lib::Decoder::new(BufReader::new(file)).unwrap();
+                    sink_clone.lock().unwrap().append(source);
                 }
                 Err(_e) => {}
             }
@@ -67,7 +93,9 @@ pub fn player_start() -> Sender<String> {
     sender
 }
 pub fn player_ing() {
-    loop {}
+    loop {
+        println!("123");
+    }
 }
 #[allow(dead_code)]
 pub fn play_netease(sender: Sender<String>, keyword: String) {
@@ -99,11 +127,29 @@ pub fn play_netease(sender: Sender<String>, keyword: String) {
 
 #[allow(dead_code)]
 pub fn play_xinlifm(sender: Sender<String>, keyword: String) {
-    let _songs = xinlifm::get_songs_data(keyword);
-    for song in _songs.as_array() {
-        /*let sound_file_name =
-            xinlifm::get_song_playurl_by_id("rodio".to_string(), song["id"].to_string());
-        sender.send(sound_file_name).unwrap();*/
+    let songs = xinlifm::get_songs_data(keyword);
+    for song in songs {
+        let obj = song.as_object().unwrap();
+        let name = match obj.get("title").unwrap() {
+            Json::String(s) => s,
+            _ => "error name",
+        };
+        let id = match obj.get("id").unwrap() {
+            Json::U64(s) => s,
+            _ => &0,
+        };
+        let song_url = xinlifm::get_song_playurl_by_id(id.to_string());
+        if !song_url.is_empty() {
+            let mut music = Music {
+                name: name.to_string(),
+                url: song_url,
+                path: None,
+            };
+            let file_path = download_file_by_play_url(&music.url.as_str());
+            music.path = Some(file_path);
+            let msg = json::encode(&music).unwrap();
+            sender.send(msg).unwrap();
+        }
     }
 }
 #[allow(dead_code)]
