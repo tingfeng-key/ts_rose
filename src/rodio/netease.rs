@@ -1,76 +1,67 @@
 extern crate crypto;
-extern crate json;
 extern crate nom;
 extern crate rand;
 extern crate reqwest;
 extern crate rustc_serialize;
 
+use self::rustc_serialize::json::Json;
 use crypto::buffer::{ReadBuffer, WriteBuffer};
 use crypto::{aes, blockmodes, buffer};
-use json::JsonValue;
 use rustc_serialize::hex::ToHex;
 
-use std::fs;
-use std::fs::File;
-use std::path::Path;
+fn request(encode_body: &str) -> Json {
+    static REQUEST_URL: &str = "http://music.163.com/api/linux/forward";
+    static REQUEST_REFERER: &str = "http://music.163.com/";
+    static REQUEST_CONTENT_TYPE: &str = "application/x-www-form-urlencoded";
 
-use std::error::Error;
-use std::io::copy;
-
+    let mut response = reqwest::Client::new()
+        .post(REQUEST_URL)
+        .header("referer", REQUEST_REFERER)
+        .header("content-type", REQUEST_CONTENT_TYPE)
+        .body(format!("eparams={}", encode_netease_data(encode_body)))
+        .send()
+        .unwrap();
+    let json = Json::from_str(&response.text().unwrap()).unwrap();
+    json
+}
 #[allow(dead_code)]
-pub fn get_songs_data(keyword: String) -> JsonValue {
+pub fn get_songs_data(keyword: String) -> Vec<Json> {
     let get_songs_str =
         format!("{}{}{}",
         r#"{"method":"POST","url":"http:\/\/music.163.com\/api\/cloudsearch\/pc","params":{"s":""#,
         keyword, r#"","type":1,"offset":0,"limit":10}}""#
     );
-    let mut get_songs_result = reqwest::Client::new()
-        .post("http://music.163.com/api/linux/forward")
-        .header("referer", "http://music.163.com/")
-        .header("content-type", "application/x-www-form-urlencoded")
-        .body(format!("eparams={}", encode_netease_data(&get_songs_str)))
-        .send()
-        .unwrap();
-    let get_songs_body = json::parse(&get_songs_result.text().unwrap()).unwrap();
-    let songs = get_songs_body["result"]["songs"].clone();
-    songs
+
+    let get_songs_body = request(&get_songs_str);
+
+    let songs = get_songs_body["result"]["songs"].as_array().unwrap();
+    songs.to_vec()
 }
 
 #[allow(dead_code)]
-pub fn get_song_playurl_by_id(save_file_dir: String, music_id: String) -> String {
-    let get_song_by_id_str = &format!("{}{}{}", r#"{"method":"POST","url":"http:\/\/music.163.com\/api\/song\/enhance\/player\/url","params":{"ids":["#, music_id, r#"],"br":320000}}"#);
-    let mut get_song_by_id_result = reqwest::Client::new()
-        .post("http://music.163.com/api/linux/forward")
-        .header("referer", "http://music.163.com/")
-        .header("content-type", "application/x-www-form-urlencoded")
-        .body(format!(
-            "eparams={}",
-            encode_netease_data(get_song_by_id_str)
-        ))
-        .send()
-        .unwrap();
-    println!("{}", get_song_by_id_result.text().unwrap());
-    let get_song_by_id_body =
-        json::parse(&get_song_by_id_result.text().unwrap().clone()).expect("json parse error");
-    let source_url = get_song_by_id_body["data"][0]["url"].to_string();
+pub fn get_song_play_url_by_id(music_id: String) -> String {
+    let body_str = format!("{}{}{}", r#"{"method":"POST","url":"http:\/\/music.163.com\/api\/song\/enhance\/player\/url","params":{"ids":["#, music_id, r#"],"br":320000}}"#);
 
-    let source_url_collect: Vec<&str> = source_url.split('/').collect();
-    let file_name = source_url_collect[source_url_collect.len() - 1];
-    let mut download_file = reqwest::Client::new().get(&source_url).send().unwrap();
+    let body = request(&body_str);
+    let data = body.as_object().unwrap().get("data").unwrap();
 
-    let file_path = format!("{}/{}", save_file_dir, &file_name);
-    fs::create_dir_all(save_file_dir).unwrap_or_else(|why| {
-        println!("! {:?}", why.kind());
-    });
-
-    let path = Path::new(&file_path);
-    let display = path.display();
-    let mut file = match File::create(&path) {
-        Err(why) => panic!("couldn't create {}, {}", display, why.description()),
-        Ok(file) => file,
-    };
-    copy(&mut download_file, &mut file).unwrap();
-    file_path.to_string()
+    let data_arr = data.as_array().unwrap();
+    let mut url: String = "".to_string();
+    if data_arr.len() > 0 {
+        let source_url = data_arr
+            .get(0)
+            .unwrap()
+            .as_object()
+            .unwrap()
+            .get("url")
+            .unwrap();
+        url = match source_url {
+            Json::String(s) => s.to_string(),
+            Json::Null => url,
+            _ => url,
+        };
+    }
+    url
 }
 
 fn encode_netease_data(encode_before_data: &str) -> String {
