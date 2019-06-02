@@ -15,8 +15,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c6cbe912-5429-4516-b25e-3b7d5e8e2212" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/codec/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/codec/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/codec/.gitignore" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -72,9 +71,14 @@
       </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/codec/.gitignore">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/music_player/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="1" selection-start-column="1" selection-end-column="1" />
+            <state relative-caret-position="60">
+              <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
             </state>
           </provider>
         </entry>
@@ -200,6 +204,12 @@
             <path>
               <item name="ts_rose" type="b2602c69:ProjectViewProjectNode" />
               <item name="ts_rose" type="462c0819:PsiDirectoryNode" />
+              <item name="music_player" type="462c0819:PsiDirectoryNode" />
+              <item name="target" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ts_rose" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ts_rose" type="462c0819:PsiDirectoryNode" />
               <item name="ts__music_player" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -295,12 +305,12 @@
       <workItem from="1559455934584" duration="13165000" />
       <workItem from="1559476504814" duration="8435000" />
       <workItem from="1559486038885" duration="3236000" />
-      <workItem from="1559491399797" duration="21000" />
+      <workItem from="1559491399797" duration="237000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="175312000" />
+    <option name="totallyTimeSpent" value="175528000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="6" />
@@ -347,13 +357,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="423">
           <caret line="930" column="7" selection-start-line="930" selection-start-column="7" selection-end-line="930" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/music_player/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
         </state>
       </provider>
     </entry>
@@ -618,12 +621,15 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/codec/.gitignore">
+    <entry file="file://$PROJECT_DIR$/music_player/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="1" selection-start-column="1" selection-end-column="1" />
+        <state relative-caret-position="60">
+          <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/codec/.gitignore">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
   </component>
 </project>
