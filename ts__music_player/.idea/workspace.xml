@@ -12,34 +12,7 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b773d879-afdd-4d51-b55d-f05b33763390" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../codec/resource/test.mp3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../music_player/src/player.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../music_player/src/rodio/playground.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/ts__music_player.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/player.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/site/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/site/netease.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/site/tencent.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/site/xl_fm.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../music_player/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Cargo.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/../music_player/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../music_player/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/codec/json.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/codec/mod.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../music_player/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/protocol/http/client.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/rodio/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../music_player/src/rodio/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/rodio/netease.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../music_player/src/rodio/netease.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/rodio/xinlifm.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../music_player/src/rodio/xinlifm.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/test/mio_test.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../music_player/src/test/mio_test.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/test/mp3_metadata.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../music_player/src/test/mp3_metadata.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/test/player.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../music_player/src/test/player.rs" afterDir="false" />
-    </list>
+    <list default="true" id="b773d879-afdd-4d51-b55d-f05b33763390" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,13 +45,18 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Cargo.toml">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="150">
               <caret line="10" column="7" selection-start-line="10" selection-end-line="10" selection-end-column="7" />
             </state>
           </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
     </leaf>
@@ -117,6 +95,11 @@
               <item name="ts__music_player" type="b2602c69:ProjectViewProjectNode" />
               <item name="ts__music_player" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ts__music_player" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ts__music_player" type="462c0819:PsiDirectoryNode" />
+              <item name="target" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -159,12 +142,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1559489290488</updated>
-      <workItem from="1559489291724" duration="662000" />
+      <workItem from="1559489291724" duration="878000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="662000" />
+    <option name="totallyTimeSpent" value="878000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
@@ -218,6 +201,9 @@
           <caret line="10" column="7" selection-start-line="10" selection-end-line="10" selection-end-column="7" />
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
   </component>
 </project>
