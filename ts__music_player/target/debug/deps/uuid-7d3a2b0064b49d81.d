@@ -1,0 +1,15 @@
+/Users/wzl/learn/rust/ts_rose/ts__music_player/target/debug/deps/libuuid-7d3a2b0064b49d81.rlib: /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/lib.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/adapter/mod.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/adapter/core_support/mod.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/builder.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/parser/mod.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/parser/core_support.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/parser/std_support.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/prelude.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/core_support.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/std_support.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/v4.rs
+
+/Users/wzl/learn/rust/ts_rose/ts__music_player/target/debug/deps/uuid-7d3a2b0064b49d81.d: /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/lib.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/adapter/mod.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/adapter/core_support/mod.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/builder.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/parser/mod.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/parser/core_support.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/parser/std_support.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/prelude.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/core_support.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/std_support.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/v4.rs
+
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/lib.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/adapter/mod.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/adapter/core_support/mod.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/builder.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/parser/mod.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/parser/core_support.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/parser/std_support.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/prelude.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/core_support.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/std_support.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-0.7.4/src/v4.rs:
