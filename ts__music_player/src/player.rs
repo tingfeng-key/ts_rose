@@ -3,6 +3,8 @@ use std::path::{Path, PathBuf};
 use std::sync::mpsc::{sync_channel, Receiver, SyncSender};
 use std::thread;
 use std::time::Duration;
+use self::rodio::source::SineWave;
+
 struct MusicMeta {
     id: String,
     name: String,
@@ -14,67 +16,102 @@ struct MusicMeta {
 }
 impl MusicMeta {
     pub fn remove() {}
+    pub fn since_wave(&self) -> SineWave {
+        SineWave::new(4000)
+    }
 }
 struct Player {
-    sender: SyncSender,
-    receiver: Receiver,
-    term_sender: SyncSender,
-    term_receiver: Receiver,
+    sender: SyncSender<Cmd>,
+    term_sender: SyncSender<String>,
+    term_receiver: Receiver<String>,
     musics: Vec<MusicMeta>,
 }
-enum Cmd {
-    Next,
+pub enum Cmd {
+    Next(MusicMeta),
     Stop,
-    Play,
+    Play(MusicMeta),
     Exit,
+}
+#[derive(Debug)]
+pub enum Error {
+    NoOutputDevice,
+    ChannelRecvTimeout,
+    ChannelRecvDisconnected,
+    RecvError,
 }
 impl Player {
     pub fn new() -> Self {
-        let (player_sender, player_receiver) = sync_channel(1);
-        let (input_sender, output_receiver) = sync_channel(2);
+        let (player_sender, player_receiver) = sync_channel(2048);
+        let (input_sender, output_receiver) = sync_channel(2048);
 
         let player_thread_join_handle: thread::JoinHandle<Result<(), Error>> =
             thread::spawn(move || -> Result<(), Error> {
-                let rx = player_receiver;
                 let duration = Duration::from_millis(10_000); // 10 秒
                 let device = rodio::default_output_device().unwrap();
-                let mut sink = rodio::Sink::new(&device);
+                let sink = rodio::Sink::new(&device);
                 loop {
-                    let recv_msg = rx.recv_timeout(duration);
+                    let recv_msg = player_receiver.recv_timeout(duration).expect("player receiver error");
                     match recv_msg {
-                        Cmd::Play => {}
-                        Cmd::Next => {}
-                        Cmd::Stop => {}
-                        Cmd::Exit => {}
+                        Cmd::Play(music_meta) => {
+                            if sink.empty() {
+                                sink.append(music_meta.since_wave());
+                                sink.play();
+                            }
+                        }
+                        Cmd::Next(music_meta) => {
+                            sink.stop();
+                            sink.append(music_meta.since_wave());
+                            sink.play();
+                        }
+                        Cmd::Stop => {
+                            sink.stop();
+                        }
+                        Cmd::Exit => {
+                            sink.stop();
+                        }
                     }
                 }
             });
-        Ok(Self {
-            sender: player_receiver,
-            receiver: player_sender,
+        Self {
+            sender: player_sender,
             musics: Vec::new(),
             term_sender: input_sender,
             term_receiver: output_receiver,
-        })
+        }
     }
     pub fn term(&self) {
         loop {
             let duration = Duration::from_millis(10_000); // 10 秒
-            let recv_msg = rx.recv_timeout(duration);
-            match recv_msg {
+            let _recv_msg = self.term_receiver.recv_timeout(duration).expect("term receiver error");
+            /*match recv_msg {
                 Ok(msg) => {
                     println!(msg);
                 }
-                Err(_e) => {}
-            }
+                Err(_) => {}
+            }*/
         }
     }
+    #[allow(dead_code)]
     pub fn play(&self) {}
+
+    #[allow(dead_code)]
     pub fn pause(&self) {}
+
+    #[allow(dead_code)]
     pub fn next(&self) {}
+
+    #[allow(dead_code)]
     pub fn stop(&self) {}
+
+    #[allow(dead_code)]
     pub fn exit(&self) {}
-    pub fn add(&self, mut music_meta: MusicMeta) {}
+
+    #[allow(dead_code)]
+    pub fn add(&self, music_meta: MusicMeta) {}
+
+    #[allow(dead_code)]
     pub fn remove_one(&self) {}
+
+    #[allow(dead_code)]
     pub fn remove_all(&self) {}
 }
