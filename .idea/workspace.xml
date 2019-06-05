@@ -15,16 +15,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c6cbe912-5429-4516-b25e-3b7d5e8e2212" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ts__music_player/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/ts__music_player/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ts__music_player/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ts__music_player/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ts__music_player/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/ts__music_player/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ts__music_player/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/ts__music_player/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ts__music_player/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/ts__music_player/src/main.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ts__music_player/src/player.rs" beforeDir="false" afterPath="$PROJECT_DIR$/ts__music_player/src/player.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ts__music_player/src/site/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/ts__music_player/src/site/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ts__music_player/src/site/netease.rs" beforeDir="false" afterPath="$PROJECT_DIR$/ts__music_player/src/site/netease.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ts__music_player/src/site/xl_fm.rs" beforeDir="false" afterPath="$PROJECT_DIR$/ts__music_player/src/site/xl_fm.rs" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -287,18 +279,18 @@
       <workItem from="1559486038885" duration="3236000" />
       <workItem from="1559491399797" duration="299000" />
       <workItem from="1559562828957" duration="1946000" />
-      <workItem from="1559654977162" duration="6450000" />
+      <workItem from="1559654977162" duration="6773000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="183986000" />
+    <option name="totallyTimeSpent" value="184309000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1280" y="-119" width="1920" height="1080" extended-state="0" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.11893764" visible="true" weight="0.1970181" />
-      <window_info active="true" id="Structure" order="1" sideWeight="0.8810623" side_tool="true" visible="true" weight="0.1970181" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.11883692" visible="true" weight="0.1970181" />
+      <window_info id="Structure" order="1" sideWeight="0.88116306" side_tool="true" visible="true" weight="0.1970181" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32928064" />
@@ -309,7 +301,7 @@
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Database Changes" order="7" />
       <window_info anchor="bottom" id="Version Control" order="8" />
-      <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.49757674" visible="true" weight="0.122593716" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="9" sideWeight="0.49757674" visible="true" weight="0.19858156" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5024233" side_tool="true" weight="0.3069307" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />

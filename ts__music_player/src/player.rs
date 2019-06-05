@@ -4,6 +4,7 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
 use std::time::Duration;
 use self::rodio::source::SineWave;
+use std::sync::{Arc, Mutex};
 
 #[derive(Clone, Debug)]
 pub struct MusicMeta {
@@ -58,7 +59,13 @@ impl Player {
         let player_thread_join_handle: thread::JoinHandle<Result<(), Error>> =
             thread::spawn(move || -> Result<(), Error> {
                 let device = rodio::default_output_device().unwrap();
-                let sink = rodio::Sink::new(&device);
+                let sink_init = Arc::new(Mutex::new((rodio::Sink::new(&device))));
+                let sink = sink_init.clone();
+                let sink_clone = sink_init.clone();
+                thread::spawn(move || {
+                    sink_clone.lock().unwrap().sleep_until_end();
+                    thread::park();
+                });
                 loop {
                     let recv_msg = player_receiver.recv_timeout(duration).map_err(|e| match e {
                         std::sync::mpsc::RecvTimeoutError::Timeout => Error::ChannelRecvTimeout,
@@ -66,25 +73,25 @@ impl Player {
                     })?;
                     match recv_msg {
                         Cmd::Play(music_meta) => {
-                            if sink.empty() {
+                            println!("rec start: {}", music_meta.name);
+                            if sink.lock().unwrap().empty() {
                                 let file = std::fs::File::open(music_meta.local_path).unwrap();
                                 let source = rodio::Decoder::new(BufReader::new(file)).unwrap();
-                                sink.append(source);
-                                sink.play();
-                                //sink.sleep_until_end();
+                                sink.lock().unwrap().append(source);
                                 terminal_sender.send(format!("正在播放：{}", music_meta.name)).expect("error");
+                                println!("rec end: {}", music_meta.name);
                             }
                         }
                         Cmd::Next(music_meta) => {
-                            sink.stop();
-                            sink.append(music_meta.since_wave());
-                            sink.play();
+                            sink.lock().unwrap().stop();
+                            sink.lock().unwrap().append(music_meta.since_wave());
+                            sink.lock().unwrap().play();
                         }
                         Cmd::Stop => {
-                            sink.stop();
+                            sink.lock().unwrap().stop();
                         }
                         Cmd::Exit => {
-                            sink.stop();
+                            sink.lock().unwrap().stop();
                         }
                     }
                 }
@@ -123,6 +130,7 @@ impl Player {
         }
     }
     pub fn term(&self) {
+        use std::io::prelude::*;
         let duration = Duration::from_millis(10_000); // 10 秒
         let mut t = term::stdout().unwrap();
         loop {
@@ -217,7 +225,9 @@ impl Player {
             Err(why) => panic!("couldn't create {}, {}", display, why.description()),
             Ok(file) => file,
         };
-        copy(&mut download_file, &mut file).unwrap();
+        let _ = copy(&mut download_file, &mut file).map_err(|e| {
+            println!("copy file: {}", e.description());
+        });
         file_path
     }
 }
