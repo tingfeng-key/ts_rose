@@ -23,7 +23,7 @@ fn request(encode_body: &str) -> Json {
     json
 }
 #[allow(dead_code)]
-pub fn get_songs_data(keyword: String) -> Vec<Json> {
+pub fn search(keyword: String, _page: i32) -> Vec<Json> {
     let get_songs_str =
         format!("{}{}{}",
                 r#"{"method":"POST","url":"http:\/\/music.163.com\/api\/cloudsearch\/pc","params":{"s":""#,

@@ -1672,7 +1672,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ts__music_player"
+name = "ts_music_player"
 version = "0.1.0"
 dependencies = [
  "mp3-duration 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",

@@ -4,7 +4,7 @@ extern crate rustc_serialize;
 use self::rustc_serialize::json::Json;
 
 #[allow(dead_code)]
-pub fn get_songs_data(keyword: String) -> Vec<Json> {
+pub fn search(keyword: String, _page: i32) -> Vec<Json> {
     let mut get_songs_result = reqwest::Client::new()
         .get(&format!("{}{}", "http://bapi.xinli001.com/fm2/broadcast_list.json/?rows=20&is_teacher=&offset=0&speaker_id=0&q=", keyword).to_string())
         .header("content-type", "application/x-www-form-urlencoded")

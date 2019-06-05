@@ -19,6 +19,9 @@ fn main() {
         "n" => {
             site::play_netease(player.get_download_list_sender(), _keyword);
         }
+        "q" => {
+            site::play_tencent(player.get_download_list_sender(), _keyword);
+        }
         _ => {}
     }
     player.term();
