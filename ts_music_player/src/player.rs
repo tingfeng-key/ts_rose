@@ -27,7 +27,7 @@ pub struct Download {
 pub struct Player {
     play_sender: Sender<PlayerCmd>,
     term_receiver: Receiver<TerminalCmd>,
-    musics: Vec<MusicMeta>,
+    musics: Arc<Mutex<Vec<MusicMeta>>>,
     download_list_sender: Sender<Download>,
 }
 enum PlayerCmd {
@@ -45,7 +45,8 @@ enum Error {
 }
 
 enum TerminalCmd {
-    AddToList(String),
+    AddToList(MusicMeta),
+    NowPlay(String),
 }
 impl Player {
     pub fn new() -> Self {
@@ -55,19 +56,16 @@ impl Player {
         let (terminal_sender, terminal_receiver) = channel();
         let (down_list_sender, down_list_receiver) = channel();
 
-        let musics: Vec<MusicMeta> = Vec::new();
-        let mut musics_clone = musics.clone();
+        let musics:Arc<Mutex<Vec<MusicMeta>>> = Arc::new(Mutex::new(Vec::new()));//Arc::new<Mutex::new<Vec<MusicMeta>>>
 
         let player_sender_clone = player_sender.clone();
+        let terminal_sender_clone = terminal_sender.clone();
         let duration = Duration::from_millis(10_000); // 10 秒
 
         let device = rodio::default_output_device().unwrap();
-        let sink_init = Arc::new(Mutex::new((rodio::Sink::new(&device))));
-        let sink = sink_init.clone();
-        let sink_clone = sink_init.clone();
-        thread::spawn(move || -> Result<(), Error> {
-            sink_clone.lock().unwrap().sleep_until_end();
-            thread::park();
+        let sink_init = Arc::new(Mutex::new(rodio::Sink::new(&device)));
+        let mut sink = sink_init.clone();
+        let mut sink_sleep_thread: thread::JoinHandle<Result<(), Error>> = thread::spawn(move || -> Result<(), Error> {
             Ok(())
         });
         let _player_thread_join_handle: thread::JoinHandle<Result<(), Error>> =
@@ -79,17 +77,40 @@ impl Player {
                     })?;
                     match recv_msg {
                         PlayerCmd::Play(music_meta) => {
-                            //println!("rec start: {}", music_meta.name);
+                            let sink_clone = sink.lock().unwrap();
+                            if sink_clone.empty() {
+                                let file = std::fs::File::open(music_meta.local_path).unwrap();
+                                let source = rodio::Decoder::new(BufReader::new(file)).unwrap();
+                                sink_clone.append(source);
+                                terminal_sender.send(TerminalCmd::NowPlay(music_meta.name)).expect("error");
+
+                                let sink_sleep_thread_sink_clone = sink.clone();
+                                //sink_sleep_thread.thread().unpark();
+                                sink_sleep_thread = thread::spawn(move || -> Result<(), Error> {
+                                    sink_sleep_thread_sink_clone.lock().unwrap().sleep_until_end();
+                                    //thread::park();
+                                    Ok(())
+                                });
+                            }
+                        }
+                        PlayerCmd::Next(music_meta) => {
+                            //let sink_clone = sink.lock().unwrap();
+                            println!("123");
+                            sink.lock().unwrap().stop();
+                            println!("123");
+                            sink_sleep_thread.thread().unpark();
+                            println!("123");
+                            sink = Arc::new(Mutex::new(rodio::Sink::new(&device)));
                             let file = std::fs::File::open(music_meta.local_path).unwrap();
                             let source = rodio::Decoder::new(BufReader::new(file)).unwrap();
                             sink.lock().unwrap().append(source);
-                            terminal_sender.send(TerminalCmd::AddToList(music_meta.name)).expect("error");
-                            //println!("rec end: {}", music_meta.name);
-                        }
-                        PlayerCmd::Next(music_meta) => {
-                            sink.lock().unwrap().stop();
-                            sink.lock().unwrap().append(music_meta.since_wave());
-                            sink.lock().unwrap().play();
+                            terminal_sender.send(TerminalCmd::NowPlay(music_meta.name)).expect("error");
+                            let sink_sleep_thread_sink_clone = sink.clone();
+                            sink_sleep_thread = thread::spawn(move || -> Result<(), Error> {
+                                sink_sleep_thread_sink_clone.lock().unwrap().sleep_until_end();
+                                //thread::park();
+                                Ok(())
+                            });
                         }
                         PlayerCmd::Stop => {
                             sink.lock().unwrap().stop();
@@ -120,7 +141,7 @@ impl Player {
                             local_path: path,
                             duration: total_duration
                         };
-                        musics_clone.push(music.clone());
+                        terminal_sender_clone.send(TerminalCmd::AddToList(music.clone())).expect("error");
                         player_sender_clone.send(PlayerCmd::Play(music)).expect("error");
                     }
                     Err(_) => {}
@@ -136,29 +157,58 @@ impl Player {
         }
     }
     pub fn term(&self) {
-        use std::io::prelude::*;
-        let duration = Duration::from_millis(10_000); // 10 秒
-        let mut t = term::stdout().unwrap();
+        use std::thread;
+        use std::time::Duration;
+        use console::Term;
+        let duration = Duration::from_millis(3_000); // 10 秒
+
+        let term = Term::stdout();
         loop {
             let recv_msg = self.term_receiver.recv_timeout(duration).map_err(|e| match e {
                 std::sync::mpsc::RecvTimeoutError::Timeout => Error::ChannelRecvTimeout,
                 std::sync::mpsc::RecvTimeoutError::Disconnected => Error::ChannelRecvDisconnected
             });
             match recv_msg {
-                Ok(TerminalCmd::AddToList(song_name)) => {
-                    t.fg(term::color::GREEN).unwrap();
-                    writeln!(t, "添加歌曲《{}》至播放列表", song_name).unwrap();
-
-                    t.reset().unwrap();
+                Ok(TerminalCmd::AddToList(music_meta)) => {
+                    self.musics.lock().unwrap().push(music_meta.clone());
+                    term.write_line(&format!("添加歌曲《{}》至播放列表", music_meta.name).to_string()).unwrap();
+                    //thread::sleep(Duration::from_millis(2000));
+                    //term.clear_screen().unwrap();
                 }
-                Err(_) => {}
+                Ok(TerminalCmd::NowPlay(song_name)) => {
+                    term.write_line(&format!("正在播放歌曲：《{}》", song_name).to_string()).unwrap();
+                    //thread::sleep(Duration::from_millis(2000));
+                    //term.clear_screen().unwrap();
+                }
+                Err(_) => {
+                    let input_str = term.read_line();
+                    let input_command = match input_str {
+                        Ok(s) => s,
+                        Err(_) => String::new()
+                    };
+                    println!("input: {}", input_command.as_str());
+                    match input_command.as_str() {
+                        "n" => {
+                            let musics = self.musics.lock().unwrap();
+                            println!("play next: {}", musics.len());
+                            if musics.len() > 3 {
+                                let music = musics.get(3).unwrap();
+                                self.play_sender.send(PlayerCmd::Next(music.clone())).expect("send error");
+                            }
+                        }
+                        "m" => {}
+                        _ => {}
+                    }
+                }
+                _ => {}
             }
         }
+        thread::park();
     }
     #[allow(dead_code)]
     pub fn play(&self) {
-        let music = self.musics.get(0).expect("music play error").clone();
-        self.play_sender.send(PlayerCmd::Play(music)).expect("error");
+        //let music = self.musics.get(0).expect("music play error").clone();
+        //self.play_sender.send(PlayerCmd::Play(music)).expect("error");
     }
 
     #[allow(dead_code)]
@@ -181,7 +231,8 @@ impl Player {
 
     #[allow(dead_code)]
     pub fn add(&self, music_meta: MusicMeta) {
-        self.musics.clone().push(music_meta);
+
+        //self.musics.clone().push(music_meta);
     }
 
     #[allow(dead_code)]

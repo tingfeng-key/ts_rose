@@ -9,9 +9,12 @@ edition = "2018"
 [dependencies]
 mp3-duration = "0.1.6"
 
-term = "0.5.2"
+#term = "0.5.2"
 
-log = "0.4.6"
+#log = "0.4.6"
 
-sdl2 = "0.32.2"
-piston2d-graphics = "0.32.0"
+#sdl2 = "0.32.2"
+#piston2d-graphics = "0.32.0"
+
+cpal = "0.9.0"
+minimp3 = "0.3.3"
