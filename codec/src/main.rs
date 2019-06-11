@@ -19,7 +19,7 @@ fn main() {
     use std::path::Path;
 
     let mut decoder = Decoder::new(File::open(
-        Path::new("resource/hxfs.mp3")
+        Path::new("resource/1559457768.mp3")
     ).unwrap());//1559457768
 
     let device = cpal::default_output_device().expect("Failed to get default output device");
@@ -35,20 +35,23 @@ fn main() {
     let mut next_value = || {
         let mut s = 0f32;
         if current_frame_data_index+2 < current_frame.data.len() {
-            s = (current_frame.data[current_frame_data_index] as f32 / current_frame.sample_rate as f32);
-            current_frame_data_index += 1;
-            s = (s + ((current_frame.data[current_frame_data_index] as f32 / current_frame.sample_rate as f32))) / 2.0;
-            current_frame_data_index += 1;
+            s = (
+                (current_frame.data[current_frame_data_index] as f32 +
+                    current_frame.data[current_frame_data_index + 1] as f32
+                ) / current_frame.sample_rate as f32
+            ) / (current_frame.channels as f32);
+            current_frame_data_index += 2;
             //println!("{}, {}", current_frame.channels, current_frame.bitrate);
         }else {
             match decoder.next_frame() {
                 Ok(f) => {
                     current_frame = f;
                     current_frame_data_index = 0;
-                    s = (current_frame.data[current_frame_data_index] as f32 / current_frame.sample_rate as f32);
-                    current_frame_data_index += 1;
-                    s = (s + ((current_frame.data[current_frame_data_index] as f32 / current_frame.sample_rate as f32))) / 2.0;
-                    current_frame_data_index += 1;
+                    s = (
+                        (current_frame.data[current_frame_data_index] as f32 +
+                            current_frame.data[current_frame_data_index + 1] as f32
+                        ) / current_frame.sample_rate as f32
+                    ) / (current_frame.channels as f32);
                 }
                 Err(e) => panic!("err")
             };
