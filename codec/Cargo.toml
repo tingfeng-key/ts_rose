@@ -4,10 +4,13 @@ version = "0.1.0"
 authors = ["tingfeng-key <1770963469@qq.com>"]
 edition = "2018"
 
+#build   = "build.rs"
+#links   = "ffmpeg"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-mp3-duration = "0.1.6"
+#mp3-duration = "0.1.6"
 
 #term = "0.5.2"
 
@@ -18,3 +21,10 @@ mp3-duration = "0.1.6"
 
 cpal = "0.9.0"
 minimp3 = "0.3.3"
+#libc = "0.2.0"
+piston = "0.48.0"
+
+[build-dependencies]
+#cc = "1.0.37"
+#gl_generator = "0.5.0"
+#bindgen = "0.49.2"

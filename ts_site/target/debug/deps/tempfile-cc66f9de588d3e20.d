@@ -1,0 +1,14 @@
+/Users/wzl/learn/rust/ts_rose/ts_site/target/debug/deps/libtempfile-cc66f9de588d3e20.rlib: /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/lib.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/dir.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/error.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/mod.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/imp/mod.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/spooled.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/util.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/imp/unix.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/imp/windows.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/imp/other.rs
+
+/Users/wzl/learn/rust/ts_rose/ts_site/target/debug/deps/tempfile-cc66f9de588d3e20.d: /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/lib.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/dir.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/error.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/mod.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/imp/mod.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/spooled.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/util.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/imp/unix.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/imp/windows.rs /Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/imp/other.rs
+
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/lib.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/dir.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/error.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/mod.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/imp/mod.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/spooled.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/util.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/imp/unix.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/imp/windows.rs:
+/Users/wzl/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-3.0.8/src/file/imp/other.rs:
