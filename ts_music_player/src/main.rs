@@ -1,9 +1,16 @@
-use crate::player::Player;
-
+mod engine;
 mod player;
 mod site;
-use std::env;
+
 fn main() {
+    run_player();
+}
+
+#[allow(dead_code)]
+fn run_player() {
+    use crate::player::Player;
+
+    use std::env;
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         panic!("arg error, first arg: n/x, two: song name");
