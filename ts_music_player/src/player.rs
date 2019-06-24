@@ -30,6 +30,16 @@ pub struct Player {
     term_receiver: Receiver<TerminalCmd>,
     musics: Arc<Mutex<Vec<MusicMeta>>>,
     download_list_sender: Sender<Download>,
+    play_status: Arc<Mutex<PLAYSTATUS>>,
+}
+#[allow(dead_code)]
+#[derive(Clone, Debug)]
+enum PlayStatus {
+    PLAYING,
+    STOP,
+}
+struct PLAYSTATUS {
+    status: PlayStatus,
 }
 #[allow(dead_code)]
 enum PlayerCmd {
@@ -58,11 +68,15 @@ impl Player {
         let (terminal_sender, terminal_receiver) = channel();
         let (down_list_sender, down_list_receiver) = channel();
 
-        let musics: Arc<Mutex<Vec<MusicMeta>>> = Arc::new(Mutex::new(Vec::new())); //Arc::new<Mutex::new<Vec<MusicMeta>>>
+        let _musics: Arc<Mutex<Vec<MusicMeta>>> = Arc::new(Mutex::new(Vec::new())); //Arc::new<Mutex::new<Vec<MusicMeta>>>
 
-        let player_sender_clone = player_sender.clone();
         let terminal_sender_clone = terminal_sender.clone();
         let duration = Duration::from_millis(10_000); // 10 秒
+
+        let current_play_status = Arc::new(Mutex::new(PLAYSTATUS {
+            status: PlayStatus::STOP,
+        }));
+        let current_play_status_clone = current_play_status.clone();
         let _player_thread_join_handle: thread::JoinHandle<Result<(), Error>> =
             thread::spawn(move || -> Result<(), Error> {
                 loop {
@@ -74,19 +88,25 @@ impl Player {
                                 Error::ChannelRecvDisconnected
                             }
                         })?;
-                    let audio_engine = engine::AudioEngine::run_output_device();
+
                     match recv_msg {
                         PlayerCmd::Play(music_meta) => {
-                            /*terminal_sender
-                            .send(TerminalCmd::NowPlay(music_meta.name))
-                            .expect("error");*/
-
+                            terminal_sender
+                                .send(TerminalCmd::NowPlay(music_meta.clone().name))
+                                .expect("error");
                             let mut decoder = Decoder::new(
                                 File::open(Path::new(music_meta.clone().local_path.as_str()))
                                     .unwrap(),
                             );
-                            println!("{}, {}", music_meta.name, music_meta.duration);
+                            current_play_status_clone.lock().unwrap().status = PlayStatus::PLAYING;
+                            let audio_engine = engine::AudioEngine::run_output_device();
                             loop {
+                                match current_play_status_clone.lock().unwrap().status {
+                                    PlayStatus::PLAYING => {}
+                                    _ => {
+                                        break;
+                                    }
+                                };
                                 let frame = decoder.next_frame();
                                 match frame {
                                     Ok(mut f) => {
@@ -104,6 +124,7 @@ impl Player {
                                         }
                                     }
                                     Err(_) => {
+                                        println!("123");
                                         break;
                                     }
                                 }
@@ -114,14 +135,7 @@ impl Player {
                                 .send(TerminalCmd::NowPlay(music_meta.name))
                                 .expect("error");
                         }
-                        PlayerCmd::Stop => {
-                            audio_engine
-                                .output_sender
-                                .clone()
-                                .unwrap()
-                                .send(engine::EngineInput::Exit)
-                                .expect("send decode error");
-                        }
+                        PlayerCmd::Stop => {}
                         PlayerCmd::Exit => {}
                     }
                 }
@@ -151,19 +165,18 @@ impl Player {
                         terminal_sender_clone
                             .send(TerminalCmd::AddToList(music.clone()))
                             .expect("error");
-                        player_sender_clone
-                            .send(PlayerCmd::Play(music))
-                            .expect("error");
                     }
                     Err(_) => {}
                 }
             }
         });
+
         Self {
             play_sender: player_sender,
-            musics: musics,
+            musics: _musics,
             term_receiver: terminal_receiver,
             download_list_sender: down_list_sender,
+            play_status: current_play_status,
         }
     }
     #[allow(dead_code)]
@@ -172,27 +185,61 @@ impl Player {
         let duration = Duration::from_millis(3_000); // 10 秒
 
         let term = Term::stdout();
-        let recv_msg = self
-            .term_receiver
-            .recv_timeout(duration)
-            .map_err(|e| match e {
-                std::sync::mpsc::RecvTimeoutError::Timeout => Error::ChannelRecvTimeout,
-                std::sync::mpsc::RecvTimeoutError::Disconnected => Error::ChannelRecvDisconnected,
-            });
-        match recv_msg {
-            Ok(TerminalCmd::AddToList(music_meta)) => {
-                self.musics.lock().unwrap().push(music_meta.clone());
-                term.write_line(
-                    &format!("添加歌曲《{}》至播放列表", music_meta.name).to_string(),
-                )
-                .unwrap();
-            }
-            Ok(TerminalCmd::NowPlay(song_name)) => {
-                term.write_line(&format!("正在播放歌曲：《{}》", song_name).to_string())
+        loop {
+            let recv_msg = self
+                .term_receiver
+                .recv_timeout(duration)
+                .map_err(|e| match e {
+                    std::sync::mpsc::RecvTimeoutError::Timeout => Error::ChannelRecvTimeout,
+                    std::sync::mpsc::RecvTimeoutError::Disconnected => {
+                        Error::ChannelRecvDisconnected
+                    }
+                });
+            match recv_msg {
+                Ok(TerminalCmd::AddToList(music_meta)) => {
+                    if self.musics.lock().unwrap().len() == 0 {
+                        self.play_sender
+                            .send(PlayerCmd::Play(music_meta.clone()))
+                            .expect("send error");
+                    }
+                    self.musics.lock().unwrap().push(music_meta.clone());
+                    term.write_line(
+                        &format!("添加歌曲《{}》至播放列表", music_meta.name)
+                            .to_string(),
+                    )
                     .unwrap();
-                //term.clear_screen().unwrap();
+                    //term.clear_screen().unwrap();
+                }
+                Ok(TerminalCmd::NowPlay(song_name)) => {
+                    term.write_line(
+                        &format!("正在播放歌曲：《{}》", song_name).to_string(),
+                    )
+                    .unwrap();
+                }
+                Err(_) => {
+                    let input_str = term.read_line();
+                    let input_command = match input_str {
+                        Ok(s) => s,
+                        Err(_) => String::new(),
+                    };
+                    println!("input: {}", input_command.as_str());
+                    match input_command.as_str() {
+                        "n" => {
+                            let musics = self.musics.lock().unwrap();
+                            println!("play next: {}", musics.len());
+                            self.play_status.lock().unwrap().status = PlayStatus::STOP;
+                            if musics.len() > 3 {
+                                let music = musics.get(1).unwrap();
+                                self.play_sender
+                                    .send(PlayerCmd::Play(music.clone()))
+                                    .expect("send error");
+                            }
+                        }
+                        "m" => {}
+                        _ => {}
+                    }
+                }
             }
-            Err(_) => {}
         }
         thread::park();
     }
