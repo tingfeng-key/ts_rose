@@ -103,6 +103,8 @@ impl AudioEngine {
 impl Drop for AudioEngine {
     fn drop(&mut self) {
         self.output_sender.clone().unwrap().send(EngineInput::Exit);
+        //是在这里暂停然后删除流
+        //self.event_loop_handle.destroy_stream(self.stream_id)
         println!("delete");
     }
 }
