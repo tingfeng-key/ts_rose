@@ -1,9 +1,11 @@
 mod engine;
 mod player;
+mod sdl2_audio;
 mod site;
 
 fn main() {
-    run_player();
+    //    run_player();
+    sdl2_audio::run();
 }
 
 #[allow(dead_code)]
