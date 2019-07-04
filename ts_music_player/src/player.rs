@@ -1,5 +1,3 @@
-use crate::engine;
-use minimp3::Decoder;
 use std::fs::File;
 use std::path::Path;
 use std::sync::mpsc::{channel, Receiver, Sender};
@@ -71,7 +69,7 @@ impl Player {
         let _musics: Arc<Mutex<Vec<MusicMeta>>> = Arc::new(Mutex::new(Vec::new())); //Arc::new<Mutex::new<Vec<MusicMeta>>>
 
         let terminal_sender_clone = terminal_sender.clone();
-        let duration = Duration::from_millis(10_000); // 10 秒
+        let duration = Duration::from_millis(1000_000); // 10 秒
 
         let current_play_status = Arc::new(Mutex::new(PLAYSTATUS {
             status: PlayStatus::STOP,
@@ -94,41 +92,9 @@ impl Player {
                             terminal_sender
                                 .send(TerminalCmd::NowPlay(music_meta.clone().name))
                                 .expect("error");
-                            let mut decoder = Decoder::new(
-                                File::open(Path::new(music_meta.clone().local_path.as_str()))
-                                    .unwrap(),
-                            );
                             current_play_status_clone.lock().unwrap().status = PlayStatus::PLAYING;
-                            let audio_engine = engine::AudioEngine::run_output_device();
-                            loop {
-                                match current_play_status_clone.lock().unwrap().status {
-                                    PlayStatus::PLAYING => {}
-                                    _ => {
-                                        break;
-                                    }
-                                };
-                                let frame = decoder.next_frame();
-                                match frame {
-                                    Ok(mut f) => {
-                                        for sample in f.data.chunks_mut(f.channels as usize) {
-                                            for a in sample.iter_mut() {
-                                                audio_engine
-                                                    .output_sender
-                                                    .clone()
-                                                    .unwrap()
-                                                    .send(engine::EngineInput::Input(
-                                                        a.clone() as f32 / std::i16::MAX as f32,
-                                                    ))
-                                                    .expect("send decode error"); //a.clone() as f32 / std::i16::MAX as f32,
-                                            }
-                                        }
-                                    }
-                                    Err(_) => {
-                                        println!("123");
-                                        break;
-                                    }
-                                }
-                            }
+                            crate::sdl2_audio::run(music_meta.clone().local_path.as_str());
+                            println!("finash...");
                         }
                         PlayerCmd::Next(music_meta) => {
                             terminal_sender
@@ -241,7 +207,6 @@ impl Player {
                 }
             }
         }
-        thread::park();
     }
     #[allow(dead_code)]
     pub fn play(&self) {

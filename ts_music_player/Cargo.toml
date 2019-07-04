@@ -7,13 +7,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-#rodio = { git = "https://github.com/tomaka/rodio" }
 reqwest = "0.9.17"
 rust-crypto = "^0.2"
 rustc-serialize = "0.3.24"
 mp3-duration = "0.1.6"
 console = "0.7.5"
-cpal = "0.9.0"
 minimp3 = "0.3.3"
 
 sdl2="0.32"
