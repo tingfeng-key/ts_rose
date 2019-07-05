@@ -3,7 +3,7 @@ use std::path::Path;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 #[allow(dead_code)]
 #[derive(Clone, Debug)]
@@ -12,10 +12,7 @@ pub struct MusicMeta {
     local_path: String,
     duration: u64,
 }
-impl MusicMeta {
-    #[allow(dead_code)]
-    pub fn remove() {}
-}
+
 #[allow(dead_code)]
 #[derive(Debug)]
 pub struct Download {
@@ -28,23 +25,16 @@ pub struct Player {
     term_receiver: Receiver<TerminalCmd>,
     musics: Arc<Mutex<Vec<MusicMeta>>>,
     download_list_sender: Sender<Download>,
-    play_status: Arc<Mutex<PLAYSTATUS>>,
+    current_music_index: usize,
+    current_music_duration: Option<Duration>,
 }
-#[allow(dead_code)]
-#[derive(Clone, Debug)]
-enum PlayStatus {
-    PLAYING,
-    STOP,
-}
-struct PLAYSTATUS {
-    status: PlayStatus,
-}
+
 #[allow(dead_code)]
 enum PlayerCmd {
-    Next(MusicMeta),
     Stop,
     Play(MusicMeta),
     Exit,
+    Hard,
 }
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -58,6 +48,8 @@ enum Error {
 enum TerminalCmd {
     AddToList(MusicMeta),
     NowPlay(String),
+    Next,
+    Hard,
 }
 #[allow(dead_code)]
 impl Player {
@@ -66,18 +58,28 @@ impl Player {
         let (terminal_sender, terminal_receiver) = channel();
         let (down_list_sender, down_list_receiver) = channel();
 
-        let _musics: Arc<Mutex<Vec<MusicMeta>>> = Arc::new(Mutex::new(Vec::new())); //Arc::new<Mutex::new<Vec<MusicMeta>>>
+        let musics: Arc<Mutex<Vec<MusicMeta>>> = Arc::new(Mutex::new(Vec::new())); //Arc::new<Mutex::new<Vec<MusicMeta>>>
 
         let terminal_sender_clone = terminal_sender.clone();
-        let duration = Duration::from_millis(1000_000); // 10 秒
+        let duration = Duration::from_millis(1000_000);
 
-        let current_play_status = Arc::new(Mutex::new(PLAYSTATUS {
-            status: PlayStatus::STOP,
-        }));
-        let current_play_status_clone = current_play_status.clone();
         let _player_thread_join_handle: thread::JoinHandle<Result<(), Error>> =
             thread::spawn(move || -> Result<(), Error> {
+                let mut audio = crate::engine::audio::Audio::new();
+                let mut timer = Instant::now();
                 loop {
+                    //计时器，用于播放下一个音频
+                    match audio.duration {
+                        Some(d) => {
+                            if d.as_nanos() <= timer.elapsed().as_nanos() {
+                                timer = Instant::now();
+                                terminal_sender.send(TerminalCmd::Next).expect("error");
+                            }
+                        }
+                        None => {
+                            timer = Instant::now();
+                        }
+                    }
                     let recv_msg = player_receiver
                         .recv_timeout(duration)
                         .map_err(|e| match e {
@@ -87,30 +89,25 @@ impl Player {
                             }
                         })?;
 
+                    //接受消息
                     match recv_msg {
                         PlayerCmd::Play(music_meta) => {
-                            println!("test123");
                             terminal_sender
                                 .send(TerminalCmd::NowPlay(music_meta.clone().name))
                                 .expect("error");
-                            current_play_status_clone.lock().unwrap().status = PlayStatus::PLAYING;
-                            let audio = crate::engine::audio::Audio::new(
-                                music_meta.clone().local_path.as_str(),
-                            );
-                            //                            std::thread::sleep(audio.duration);
-                            println!("finash...");
-                        }
-                        PlayerCmd::Next(music_meta) => {
-                            terminal_sender
-                                .send(TerminalCmd::NowPlay(music_meta.name))
-                                .expect("error");
+                            audio.play(music_meta.clone().local_path.as_str());
+                            terminal_sender.send(TerminalCmd::Hard).expect("error");
                         }
                         PlayerCmd::Stop => {}
                         PlayerCmd::Exit => {}
+                        PlayerCmd::Hard => {
+                            terminal_sender.send(TerminalCmd::Hard).expect("error");
+                        }
                     }
                 }
             });
 
+        //下载资源线程
         let _download_thread_join_handle = thread::spawn(move || -> Result<(), Error> {
             loop {
                 let recv_msg = down_list_receiver
@@ -143,18 +140,21 @@ impl Player {
 
         Self {
             play_sender: player_sender,
-            musics: _musics,
+            musics,
             term_receiver: terminal_receiver,
             download_list_sender: down_list_sender,
-            play_status: current_play_status,
+            current_music_index: 0,
+            current_music_duration: None,
         }
     }
 
-    pub fn term(&self) {
+    //控制台输入输出
+    pub fn term(&mut self) {
         use console::Term;
         let duration = Duration::from_millis(3_000); // 10 秒
 
         let term = Term::stdout();
+
         loop {
             let recv_msg = self
                 .term_receiver
@@ -166,6 +166,7 @@ impl Player {
                     }
                 });
             match recv_msg {
+                //添加歌曲
                 Ok(TerminalCmd::AddToList(music_meta)) => {
                     if self.musics.lock().unwrap().len() == 0 {
                         self.play_sender
@@ -178,66 +179,44 @@ impl Player {
                             .to_string(),
                     )
                     .unwrap();
-                    //term.clear_screen().unwrap();
                 }
+                //当前播放歌曲
                 Ok(TerminalCmd::NowPlay(song_name)) => {
                     term.write_line(
                         &format!("正在播放歌曲：《{}》", song_name).to_string(),
                     )
                     .unwrap();
+                    self.play_sender.send(PlayerCmd::Hard).expect("send error");
+                }
+                //下一首
+                Ok(TerminalCmd::Next) => {
+                    let musics = self.musics.lock().unwrap();
+                    self.current_music_index += 1;
+                    let music = musics.get(self.current_music_index).unwrap();
+                    term.write_line(&format!("下一首歌曲：《{}》", music.name).to_string())
+                        .unwrap();
+                    self.play_sender
+                        .send(PlayerCmd::Play(music.clone()))
+                        .expect("send error");
+                }
+                //心跳
+                Ok(TerminalCmd::Hard) => {
+                    self.play_sender.send(PlayerCmd::Hard).expect("send error");
                 }
                 Err(_) => {
-                    let input_str = term.read_line();
-                    let input_command = match input_str {
-                        Ok(s) => s,
-                        Err(_) => String::new(),
-                    };
-                    println!("input: {}", input_command.as_str());
-                    match input_command.as_str() {
-                        "n" => {
-                            let musics = self.musics.lock().unwrap();
-                            println!("play next: {}", musics.len());
-                            self.play_status.lock().unwrap().status = PlayStatus::STOP;
-                            if musics.len() > 3 {
-                                let music = musics.get(1).unwrap();
-                                self.play_sender
-                                    .send(PlayerCmd::Play(music.clone()))
-                                    .expect("send error");
-                            }
-                        }
-                        "m" => {}
-                        _ => {}
-                    }
+                    println!("exit!");
                 }
             }
         }
-        println!("test");
     }
 
-    pub fn play(&self) {
-        //let music = self.musics.get(0).expect("music play error").clone();
-        //self.play_sender.send(PlayerCmd::Play(music)).expect("error");
-    }
-
-    pub fn pause(&self) {}
-
-    pub fn next(&self) {
-        //self.sender.send(Cmd::Next());
-    }
-
-    pub fn stop(&self) {
-        self.play_sender.send(PlayerCmd::Stop).expect("error");
-    }
-
-    pub fn exit(&self) {
-        self.play_sender.send(PlayerCmd::Exit).expect("error");
-    }
-
+    //返回下载线程发送器
     pub fn get_download_list_sender(&self) -> Sender<Download> {
         let sender = self.download_list_sender.clone();
         sender
     }
 
+    //根据url下载音频
     fn download_file_by_url(play_url: &str) -> String {
         use reqwest::Url;
         use std::error::Error;
@@ -245,20 +224,19 @@ impl Player {
         use std::io::copy;
         use std::time::SystemTime;
 
-        let save_dir: &str = "download";
+        let save_dir: &str = "download"; //保存资源目录
         let duration = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap();
 
-        //println!("play_url: {:?}", play_url);
         let url = Url::parse(play_url).unwrap();
-        //println!("url: {:?}", url);
         let file_name = duration.as_secs();
         let mut download_file = reqwest::Client::new()
             .get(url)
             .send()
             .expect("request error");
 
+        //文件路径
         let file_path = format!("{}/{}.mp3", save_dir, &file_name);
         fs::create_dir_all(save_dir).unwrap_or_else(|why| {
             println!("! {:?}", why.kind());
@@ -270,6 +248,7 @@ impl Player {
             Err(why) => panic!("couldn't create {}, {}", display, why.description()),
             Ok(file) => file,
         };
+        //保存资源(复制）
         let _ = copy(&mut download_file, &mut file).map_err(|e| {
             println!("copy file: {}", e.description());
         });

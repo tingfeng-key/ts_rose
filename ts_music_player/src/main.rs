@@ -15,21 +15,24 @@ fn run_player() {
     if args.len() < 2 {
         panic!("arg error, first arg: n/x, two: song name");
     }
-    let _type: &str = &args[1];
-    let _keyword: String = args[2].to_string();
-    println!("info: type: {}, keyword: {}", _type, _keyword);
-    let player = Player::new();
-    match _type {
+    let play_type: &str = &args[1];
+    let keyword: String = args[2].to_string();
+
+    println!("info: type: {}, keyword: {}", play_type, keyword);
+
+    let mut player = Player::new();
+    match play_type {
         "x" => {
-            site::play_xinlifm(player.get_download_list_sender(), _keyword);
+            site::play_xinlifm(player.get_download_list_sender(), keyword);
         }
         "n" => {
-            site::play_netease(player.get_download_list_sender(), _keyword);
+            site::play_netease(player.get_download_list_sender(), keyword);
         }
         "q" => {
-            site::play_tencent(player.get_download_list_sender(), _keyword);
+            site::play_tencent(player.get_download_list_sender(), keyword);
         }
         _ => {}
     }
+    //调用输入输出线程
     player.term();
 }

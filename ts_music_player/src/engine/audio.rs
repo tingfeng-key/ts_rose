@@ -1,10 +1,11 @@
 use minimp3::Decoder;
 use sdl2::audio::{AudioCallback, AudioDevice, AudioSpecDesired};
+use sdl2::Sdl;
 use std::fs::File;
-use std::mem::drop;
 use std::path::Path;
 use std::time::Duration;
 
+//sdl2处理结构体
 #[derive(Clone, Debug)]
 struct Sound {
     volume: f32,
@@ -21,11 +22,11 @@ impl Sound {
         }
     }
 }
+//必须实现这个iter，sdl2库调用
 impl AudioCallback for Sound {
     type Channel = f32;
     fn callback(&mut self, out: &mut [f32]) {
         for x in out.iter_mut() {
-            //            println!("{}", self.data.len());
             if self.data.len() == 0 {
                 *x = 0f32;
             } else {
@@ -43,15 +44,26 @@ impl AudioCallback for Sound {
     }
 }
 
+#[allow(dead_code)]
 pub struct Audio {
-    device: AudioDevice<Sound>,
-    pub duration: Duration,
+    sdl_context: Sdl,
+    device: Option<AudioDevice<Sound>>,
+    pub duration: Option<Duration>,
 }
 impl Audio {
-    pub fn new(path: &str) -> Self {
+    //实例
+    pub fn new() -> Self {
         let sdl_context = sdl2::init().unwrap();
-        let audio_subsystem = sdl_context.audio().unwrap();
 
+        Self {
+            sdl_context,
+            device: None,
+            duration: None,
+        }
+    }
+
+    //播放MP3音频
+    pub fn play(&mut self, path: &str) {
         let mut data = Vec::new();
         let sound_path = Path::new(path);
         let sound_file = File::open(sound_path).unwrap();
@@ -59,7 +71,7 @@ impl Audio {
         let mut song_sample_rate = 44_100;
         let mut song_channels = 2;
         let duration = mp3_duration::from_path(&sound_path).unwrap();
-        println!("{:#?}, {}", duration, duration.as_nanos() as u64);
+
         loop {
             let frame = decoder.next_frame();
             match frame {
@@ -89,20 +101,14 @@ impl Audio {
         };
 
         let sound = Sound::init(data);
+
+        let audio_subsystem = self.sdl_context.audio().unwrap();
         let device = audio_subsystem
-            .open_playback(None, &desired_spec, |_spec| {
-                // initialize the audio callback
-                sound
-            })
+            .open_playback(None, &desired_spec, |_spec| sound)
             .unwrap();
 
-        // Start playback
-        device.resume();
-        // Play for 2 seconds
-        //std::thread::sleep(Duration::from_nanos(duration.as_nanos() as u64));
-        Self {
-            device,
-            duration: Duration::from_nanos(duration.as_nanos() as u64),
-        }
+        self.device = Some(device);
+        self.duration = Some(Duration::from_nanos(duration.as_nanos() as u64));
+        self.device.as_ref().unwrap().resume();
     }
 }
