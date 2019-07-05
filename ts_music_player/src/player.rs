@@ -59,8 +59,8 @@ enum TerminalCmd {
     AddToList(MusicMeta),
     NowPlay(String),
 }
+#[allow(dead_code)]
 impl Player {
-    #[allow(dead_code)]
     pub fn new() -> Self {
         let (player_sender, player_receiver) = channel();
         let (terminal_sender, terminal_receiver) = channel();
@@ -89,11 +89,15 @@ impl Player {
 
                     match recv_msg {
                         PlayerCmd::Play(music_meta) => {
+                            println!("test123");
                             terminal_sender
                                 .send(TerminalCmd::NowPlay(music_meta.clone().name))
                                 .expect("error");
                             current_play_status_clone.lock().unwrap().status = PlayStatus::PLAYING;
-                            crate::sdl2_audio::run(music_meta.clone().local_path.as_str());
+                            let audio = crate::engine::audio::Audio::new(
+                                music_meta.clone().local_path.as_str(),
+                            );
+                            //                            std::thread::sleep(audio.duration);
                             println!("finash...");
                         }
                         PlayerCmd::Next(music_meta) => {
@@ -145,7 +149,7 @@ impl Player {
             play_status: current_play_status,
         }
     }
-    #[allow(dead_code)]
+
     pub fn term(&self) {
         use console::Term;
         let duration = Duration::from_millis(3_000); // 10 秒
@@ -207,38 +211,33 @@ impl Player {
                 }
             }
         }
+        println!("test");
     }
-    #[allow(dead_code)]
+
     pub fn play(&self) {
         //let music = self.musics.get(0).expect("music play error").clone();
         //self.play_sender.send(PlayerCmd::Play(music)).expect("error");
     }
 
-    #[allow(dead_code)]
     pub fn pause(&self) {}
 
-    #[allow(dead_code)]
     pub fn next(&self) {
         //self.sender.send(Cmd::Next());
     }
 
-    #[allow(dead_code)]
     pub fn stop(&self) {
         self.play_sender.send(PlayerCmd::Stop).expect("error");
     }
 
-    #[allow(dead_code)]
     pub fn exit(&self) {
         self.play_sender.send(PlayerCmd::Exit).expect("error");
     }
 
-    #[allow(dead_code)]
     pub fn get_download_list_sender(&self) -> Sender<Download> {
         let sender = self.download_list_sender.clone();
         sender
     }
 
-    #[allow(dead_code)]
     fn download_file_by_url(play_url: &str) -> String {
         use reqwest::Url;
         use std::error::Error;
