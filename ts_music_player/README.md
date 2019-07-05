@@ -1,0 +1,14 @@
+# rust 实现的音乐播放器（已迁移至：[https://github.com/tingfeng-key/tsRoseMusicPlayer](https://github.com/tingfeng-key/tsRoseMusicPlayer)）
+## 支持站点
+1. 网易云
+2. 心理fm
+3. 待添加
+
+## 平台支持
+1. mac
+2. linux
+
+## todo
+1. 添加gui
+2. 获取音频时长
+3. 获取音频信息
