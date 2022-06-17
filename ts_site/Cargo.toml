@@ -10,5 +10,5 @@ edition = "2018"
 reqwest = "0.9.17"
 rust-crypto = "^0.2"
 rustc-serialize = "0.3.24"
-diesel = "1.4.2"
+diesel = "1.4.6"
 actix-web = { git = "https://github.com/actix/actix-web" }
